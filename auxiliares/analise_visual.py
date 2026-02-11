@@ -1,8 +1,3 @@
-"""
-Video vision analysis using GPT-4 Vision.
-Extracts visual context from video frames when audio transcription is unavailable.
-"""
-
 import base64
 import os
 import subprocess

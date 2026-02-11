@@ -1,10 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-Script para preparacao e divisao do dataset de viralidade
-Autor: Filipe H Cunha
-Projeto: VIRALITY_BCC325
-"""
-
 import pandas as pd
 from sklearn.model_selection import train_test_split
 

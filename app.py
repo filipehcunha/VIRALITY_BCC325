@@ -1,14 +1,3 @@
-"""
-APLICAÇÃO STREAMLIT - PREDIÇÃO DE VIRALIDADE DE VÍDEOS
-========================================================
-
-Esta aplicação permite ao usuário:
-- Fazer upload de um vídeo
-- Gerar automaticamente a descrição visual do vídeo
-- Prever se o vídeo tem potencial viral usando modelo de ML pré-treinado
-- Visualizar a probabilidade de viralização
-"""
-
 import streamlit as st
 import joblib
 import tempfile
@@ -16,16 +5,10 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Carregar variáveis de ambiente do arquivo .env
 load_dotenv()
 
-# Importar a função de análise visual do módulo auxiliar
 from auxiliares.analise_visual import analyze_video_frame
 
-
-# ============================================================================
-# CONFIGURAÇÃO DA PÁGINA
-# ============================================================================
 st.set_page_config(
     page_title="Predição de Viralidade",
     page_icon="🎬",
@@ -38,15 +21,10 @@ st.set_page_config(
 # ============================================================================
 @st.cache_resource
 def carregar_modelo_e_vetorizador():
-    """
-    Carrega o modelo treinado e o vetorizador TF-IDF.
-    Usa @st.cache_resource para carregar apenas uma vez.
-    """
+  
     try:
-        # Carregar modelo de classificação
         modelo = joblib.load('modelo_viralidade.pkl')
         
-        # Carregar vetorizador TF-IDF
         tfidf_vectorizer = joblib.load('vetor_tfidf.pkl')
         
         return modelo, tfidf_vectorizer
@@ -60,13 +38,11 @@ def carregar_modelo_e_vetorizador():
 # INTERFACE PRINCIPAL
 # ============================================================================
 def main():
-    # Título da aplicação
     st.title("🎬 Predição de Viralidade de Vídeos")
     st.markdown("---")
     
     st.markdown("""
-    Esta aplicação analisa vídeos e prevê se eles têm potencial **viral** 
-    usando Inteligência Artificial.
+    Esta aplicação analisa vídeos e prevê se eles têm potencial **viral**.
     
     **Como funciona:**
     1. Faça upload de um vídeo
@@ -76,15 +52,10 @@ def main():
     
     st.markdown("---")
     
-    # Carregar modelo e vetorizador
     with st.spinner("🔄 Carregando modelo de IA..."):
         modelo, tfidf_vectorizer = carregar_modelo_e_vetorizador()
     
     st.success("✅ Modelo carregado com sucesso!")
-    
-    # ========================================================================
-    # UPLOAD DE VÍDEO
-    # ========================================================================
     st.subheader("📤 Faça upload do seu vídeo")
     
     video_file = st.file_uploader(
@@ -100,9 +71,6 @@ def main():
         # Botão para processar
         if st.button("🔮 Analisar Viralidade", type="primary"):
             
-            # ================================================================
-            # SALVAR VÍDEO TEMPORARIAMENTE
-            # ================================================================
             with st.spinner("💾 Salvando vídeo temporariamente..."):
                 # Criar arquivo temporário
                 with tempfile.NamedTemporaryFile(
@@ -121,10 +89,8 @@ def main():
                 
                 with st.spinner("🤖 Analisando conteúdo visual do vídeo..."):
                     try:
-                        # Usar a função do módulo auxiliar
                         descricao_visual = analyze_video_frame(video_path)
                         
-                        # Exibir descrição gerada
                         st.success("✅ Descrição visual gerada!")
                         st.info(f"**Descrição:** {descricao_visual}")
                         
@@ -136,8 +102,6 @@ def main():
                 # VETORIZAR DESCRIÇÃO COM TF-IDF
                 # ============================================================
                 with st.spinner("🔢 Vetorizando descrição..."):
-                    # IMPORTANTE: Usar apenas transform (NÃO fit_transform)
-                    # O vetorizador já foi treinado no conjunto de treino
                     descricao_tfidf = tfidf_vectorizer.transform([descricao_visual])
                 
                 # ============================================================
@@ -151,10 +115,7 @@ def main():
                     probabilidades = modelo.predict_proba(descricao_tfidf)[0]
                     prob_nao_viral = probabilidades[0]
                     prob_viral = probabilidades[1]
-                
-                # ============================================================
-                # EXIBIR RESULTADOS
-                # ============================================================
+
                 st.markdown("---")
                 st.subheader("📊 Resultado da Predição")
                 
@@ -165,7 +126,6 @@ def main():
                 else:
                     st.warning("### 📉 Vídeo sem potencial viral")
                 
-                # Exibir probabilidades
                 col1, col2 = st.columns(2)
                 
                 with col1:
@@ -181,12 +141,8 @@ def main():
                         value=f"{prob_nao_viral * 100:.2f}%"
                     )
                 
-                # Barra de progresso visual
                 st.progress(prob_viral)
                 
-                # ============================================================
-                # INTERPRETAÇÃO
-                # ============================================================
                 st.markdown("---")
                 st.subheader("💡 Interpretação")
                 
@@ -198,18 +154,12 @@ def main():
                     st.warning("💭 **Baixa probabilidade** de viralização. Considere ajustar o conteúdo.")
                 
             finally:
-                # ============================================================
-                # LIMPAR ARQUIVO TEMPORÁRIO
-                # ============================================================
                 if os.path.exists(video_path):
                     os.unlink(video_path)
     
     else:
         st.info("👆 Faça upload de um vídeo para começar a análise")
     
-    # ========================================================================
-    # RODAPÉ
-    # ========================================================================
     st.markdown("---")
     st.markdown(
         """
@@ -223,9 +173,5 @@ def main():
         unsafe_allow_html=True
     )
 
-
-# ============================================================================
-# EXECUTAR APLICAÇÃO
-# ============================================================================
 if __name__ == "__main__":
     main()

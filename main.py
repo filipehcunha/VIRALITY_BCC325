@@ -1,13 +1,3 @@
-# ============================================================================
-# PROJETO DE IA - CLASSIFICAÇÃO BINÁRIA DE VIRALIDADE DE VÍDEOS
-# Disciplina: Inteligência Artificial
-# Problema: Prever se um vídeo é viral (1) ou não viral (0)
-# Método: Regressão Logística com TF-IDF
-# ============================================================================
-
-# ============================================================================
-# 1. IMPORTAR BIBLIOTECAS NECESSÁRIAS
-# ============================================================================
 import pandas as pd
 import time
 import joblib
@@ -22,14 +12,9 @@ from sklearn.metrics import (
     confusion_matrix
 )
 
-# ============================================================================
-# 2. LER O DATASET CSV
-# ============================================================================
-print("=" * 80)
 print("CARREGANDO DATASET")
 print("=" * 80)
 
-# Carregar o dataset
 df = pd.read_csv('dataset.csv')
 
 print(f"Dataset carregado com sucesso!")
@@ -48,10 +33,7 @@ print("=" * 80)
 print("SEPARANDO FEATURES E TARGET")
 print("=" * 80)
 
-# X = coluna de texto (descricao_visual)
 X = df['descricao_visual']
-
-# y = variável alvo binária (viral)
 y = df['viral']
 
 print(f"Features (X): {X.shape[0]} amostras")
@@ -68,7 +50,6 @@ print("=" * 80)
 print("LIMPEZA DE DADOS")
 print("=" * 80)
 
-# Verificar valores nulos
 nulos_descricao = X.isna().sum()
 nulos_viral = y.isna().sum()
 
@@ -76,7 +57,6 @@ print(f"Valores nulos encontrados:")
 print(f"  - descricao_visual: {nulos_descricao}")
 print(f"  - viral: {nulos_viral}")
 
-# Criar DataFrame temporário para facilitar a remoção de nulos
 df_limpo = pd.DataFrame({'descricao_visual': X, 'viral': y})
 
 # Remover linhas com valores nulos em qualquer coluna
@@ -134,7 +114,6 @@ print("=" * 80)
 print("CRIAÇÃO DO TF-IDF VECTORIZER")
 print("=" * 80)
 
-# Criar o vetorizador TF-IDF
 tfidf_vectorizer = TfidfVectorizer(
     max_features=5000,      # Limitar a 5000 features mais importantes
     ngram_range=(1, 2),     # Usar unigramas e bigramas
@@ -157,13 +136,13 @@ print("=" * 80)
 print("VETORIZAÇÃO TF-IDF (SEM VAZAMENTO DE DADOS)")
 print("=" * 80)
 
-# IMPORTANTE: Fazer fit() APENAS no conjunto de treino
+# Fazer fit() APENAS no conjunto de treino
 # Isso evita vazamento de dados (data leakage)
 print("Aplicando fit() no conjunto de TREINO...")
 X_train_tfidf = tfidf_vectorizer.fit_transform(X_train)
 
 print("Aplicando transform() no conjunto de TESTE...")
-# IMPORTANTE: Usar apenas transform() no teste (NÃO usar fit_transform)
+
 X_test_tfidf = tfidf_vectorizer.transform(X_test)
 
 print(f"\nMatriz TF-IDF de TREINO: {X_train_tfidf.shape} (amostras x features)")
@@ -178,7 +157,6 @@ print("=" * 80)
 print("CRIAÇÃO DO MODELO DE REGRESSÃO LOGÍSTICA")
 print("=" * 80)
 
-# Criar o modelo de Regressão Logística
 modelo = LogisticRegression(
     max_iter=1000,          # Número máximo de iterações
     random_state=42,        # Reprodutibilidade
@@ -199,13 +177,10 @@ print("=" * 80)
 print("TREINAMENTO DO MODELO")
 print("=" * 80)
 
-# Iniciar contagem de tempo de treino
 inicio_treino = time.time()
 
-# Treinar o modelo com os dados de treino
 modelo.fit(X_train_tfidf, y_train)
 
-# Calcular tempo de treino
 tempo_treino = time.time() - inicio_treino
 
 print(f"✓ Modelo treinado com sucesso!")
@@ -219,13 +194,10 @@ print("=" * 80)
 print("PREDIÇÃO NO CONJUNTO DE TESTE")
 print("=" * 80)
 
-# Iniciar contagem de tempo de predição
 inicio_predicao = time.time()
 
-# Fazer predições no conjunto de teste
 y_pred = modelo.predict(X_test_tfidf)
 
-# Calcular tempo de predição
 tempo_predicao = time.time() - inicio_predicao
 
 print(f"✓ Predições realizadas com sucesso!")
@@ -239,15 +211,12 @@ print("=" * 80)
 print("SALVANDO MODELO E VETORIZADOR TF-IDF")
 print("=" * 80)
 
-# Nome dos arquivos onde serão salvos o modelo e o vetorizador
 nome_arquivo_modelo = 'modelo_viralidade.pkl'
 nome_arquivo_tfidf = 'vetor_tfidf.pkl'
 
-# Salvar o modelo treinado
 joblib.dump(modelo, nome_arquivo_modelo)
 print(f"✓ Modelo de Regressão Logística salvo com sucesso em: {nome_arquivo_modelo}")
 
-# Salvar o vetorizador TF-IDF
 joblib.dump(tfidf_vectorizer, nome_arquivo_tfidf)
 print(f"✓ Vetorizador TF-IDF salvo com sucesso em: {nome_arquivo_tfidf}")
 print()
@@ -263,7 +232,6 @@ print("=" * 80)
 print("MÉTRICAS DE AVALIAÇÃO DO MODELO")
 print("=" * 80)
 
-# Calcular métricas
 accuracy = accuracy_score(y_test, y_pred)
 precision = precision_score(y_test, y_pred, zero_division=0)
 recall = recall_score(y_test, y_pred, zero_division=0)
