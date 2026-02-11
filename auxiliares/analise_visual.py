@@ -1,3 +1,9 @@
+# Declaração de uso de IAGen (CONPEP/UFOP)
+# Este arquivo/trecho teve suporte assistivo de IAGen para geração/refatoração de código:
+# Ferramenta: Claude Sonnet 4.5 (Thinking) (via IDE)
+# Data aproximada: 05/02/2026 – 09/02/2026
+# Observação: todo output foi revisado, testado e adaptado.
+
 import base64
 import os
 import subprocess
